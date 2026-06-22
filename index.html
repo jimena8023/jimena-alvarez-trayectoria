@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plan de Trayectoria Profesional - LNI</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js for visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .scrollbar-thin::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            .print-full-width {
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Navbar -->
+    <header class="bg-slate-900 text-white shadow-md sticky top-0 z-50 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-indigo-600 p-2.5 rounded-lg text-white shadow-lg shadow-indigo-500/30">
+                    <i class="fa-solid fa-chart-line text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-lg tracking-tight">E-Portafolio LNI</h1>
+                    <p class="text-xs text-indigo-300 font-semibold">Planificación de Trayectoria Profesional</p>
+                </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-3">
+                <div class="text-right">
+                    <p class="text-xs text-slate-400 font-bold">Grupo: 3NM1</p>
+                    <p class="text-sm font-semibold text-slate-200">Álvarez Álvarez Aline Jimena</p>
+                </div>
+                <button onclick="window.print()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 shadow-md">
+                    <i class="fa-solid fa-file-pdf"></i> Exportar PDF / Imprimir
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <div class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 flex flex-col lg:flex-row gap-6">
+        
+        <!-- Navigation Menu Sidebar -->
+        <aside class="w-full lg:w-64 flex-shrink-0 no-print">
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sticky top-24">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 px-3">Fases de la Trayectoria</h3>
+                <nav class="space-y-1">
+                    <button onclick="switchTab('overview')" id="tab-overview" class="tab-btn w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 text-sm font-semibold bg-indigo-50 text-indigo-600 transition-all">
+                        <i class="fa-solid fa-table-columns text-base"></i>
+                        Vista General
+                    </button>
+                    <button onclick="switchTab('fase1')" id="tab-fase1" class="tab-btn w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-all">
+                        <i class="fa-solid fa-user-gear text-base"></i>
+                        Fase 1: Autoevaluación
+                    </button>
+                    <button onclick="switchTab('fase2')" id="tab-fase2" class="tab-btn w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-all">
+                        <i class="fa-solid fa-globe text-base"></i>
+                        Fase 2: Mercado LNI
+                    </button>
+                    <button onclick="switchTab('fase3')" id="tab-fase3" class="tab-btn w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-all">
+                        <i class="fa-solid fa-bullseye text-base"></i>
+                        Fase 3: Objetivos SMART
+                    </button>
+                    <button onclick="switchTab('fase4-5')" id="tab-fase4-5" class="tab-btn w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-all">
+                        <i class="fa-solid fa-route text-base"></i>
+                        Fases 4 y 5: Plan de Acción
+                    </button>
+                </nav>
+
+                <div class="mt-8 pt-6 border-t border-slate-100 text-center">
+                    <p class="text-[11px] font-bold text-slate-400 uppercase mb-2">Completitud del Plan</p>
+                    <div class="w-full bg-slate-100 rounded-full h-2.5 mb-2 overflow-hidden">
+                        <div id="sidebar-progress-bar" class="bg-indigo-600 h-2.5 rounded-full transition-all duration-500" style="width: 45%"></div>
+                    </div>
+                    <span id="sidebar-progress-text" class="text-xs font-bold text-indigo-600">45% Completado</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Workspace -->
+        <main class="flex-1 min-w-0 print-full-width">
+            
+            <!-- Tab: Overview -->
+            <section id="content-overview" class="tab-content space-y-6">
+                <!-- Header Card -->
+                <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-2xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
+                    <div class="absolute right-0 top-0 opacity-10 transform translate-x-12 -translate-y-6 pointer-events-none">
+                        <i class="fa-solid fa-globe-americas text-[200px]"></i>
+                    </div>
+                    <div class="relative z-10 max-w-xl">
+                        <div class="flex flex-wrap gap-2 items-center">
+                            <span class="bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase">LNI Profesional</span>
+                            <span class="bg-slate-700/50 border border-slate-600/30 text-slate-300 px-3 py-1.5 rounded-full text-xs font-extrabold tracking-wide">Grupo: 3NM1</span>
+                        </div>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold mt-3 tracking-tight">Mi Plan de Carrera Estratégico</h2>
+                        <p class="text-indigo-300 text-sm font-semibold mt-1">Elaborado por: Álvarez Álvarez Aline Jimena</p>
+                        <p class="text-slate-300 text-sm mt-3 leading-relaxed">
+                            Organiza, gestiona y mide tu evolución académica y profesional como Licenciado en Negocios Internacionales. Define tu rumbo estratégico global en un solo lugar.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-400 uppercase">FODA Personal</p>
+                            <h4 id="foda-count-indicator" class="text-xl font-bold text-slate-800 mt-1">16 Elementos</h4>
+                        </div>
+                        <div class="bg-indigo-50 text-indigo-600 p-3 rounded-xl"><i class="fa-solid fa-clipboard-list text-lg"></i></div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-400 uppercase">Áreas de Interés</p>
+                            <h4 class="text-xl font-bold text-slate-800 mt-1">2 Seleccionadas</h4>
+                        </div>
+                        <div class="bg-emerald-50 text-emerald-600 p-3 rounded-xl"><i class="fa-solid fa-ship text-lg"></i></div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-400 uppercase">Objetivos SMART</p>
+                            <h4 id="smart-goals-indicator" class="text-xl font-bold text-slate-800 mt-1">3 Definidos</h4>
+                        </div>
+                        <div class="bg-amber-50 text-amber-600 p-3 rounded-xl"><i class="fa-solid fa-bullseye text-lg"></i></div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-400 uppercase">Estatus General</p>
+                            <h4 id="status-indicator" class="text-sm font-bold text-slate-800 mt-1 bg-blue-50 text-blue-700 px-2 py-1 rounded inline-block">Plan en Ejecución</h4>
+                        </div>
+                        <div class="bg-blue-50 text-blue-600 p-3 rounded-xl"><i class="fa-solid fa-route text-lg"></i></div>
+                    </div>
+                </div>
+
+                <!-- Interactive Progress Matrix -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm lg:col-span-2">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-bold text-slate-800 text-base">Estado de Cumplimiento de Metas</h3>
+                            <span class="text-xs text-slate-400 font-semibold">Corto Plazo (1-3 Años)</span>
+                        </div>
+                        <div class="space-y-4">
+                            <div>
+                                <div class="flex justify-between text-xs font-bold text-slate-500 mb-1">
+                                    <span>Objetivo 1: Certificación Internacional</span>
+                                    <span class="text-indigo-600" id="goal1-val">40%</span>
+                                </div>
+                                <div class="w-full bg-slate-100 rounded-full h-2">
+                                    <div id="goal1-bar" class="bg-indigo-600 h-2 rounded-full" style="width: 40%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs font-bold text-slate-500 mb-1">
+                                    <span>Objetivo 2: Tercer Idioma (C1)</span>
+                                    <span class="text-indigo-600" id="goal2-val">30%</span>
+                                </div>
+                                <div class="w-full bg-slate-100 rounded-full h-2">
+                                    <div id="goal2-bar" class="bg-indigo-600 h-2 rounded-full" style="width: 30%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs font-bold text-slate-500 mb-1">
+                                    <span>Objetivo 3: Trainee / Junior en Multinacional</span>
+                                    <span class="text-indigo-600" id="goal3-val">65%</span>
+                                </div>
+                                <div class="w-full bg-slate-100 rounded-full h-2">
+                                    <div id="goal3-bar" class="bg-indigo-600 h-2 rounded-full" style="width: 65%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Quick Wins -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-base mb-3">Siguiente Acción Crítica</h3>
+                            <div class="bg-amber-50 border border-amber-200/60 p-4 rounded-xl flex gap-3 items-start">
+                                <div class="text-amber-500 mt-1"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                                <div>
+                                    <h5 class="text-xs font-extrabold text-amber-900 uppercase">Q3 2026 - Certificación</h5>
+                                    <p class="text-xs text-amber-800 mt-1">Registrarse al curso de preparación para la certificación de Agente Aduanal / Logistics APICS.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center text-xs">
+                            <span class="text-slate-500">¿Completaste esta tarea?</span>
+                            <button onclick="markNextActionDone()" id="btn-critical" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-3 py-1.5 rounded-lg transition-all">Marcar como Hecho</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab: Fase 1 Autoevaluacion -->
+            <section id="content-fase1" class="tab-content hidden space-y-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800">Fase 1: Autoevaluación Estratégica</h2>
+                        <p class="text-xs text-slate-500">Análisis FODA personalizado e identificación de tu propuesta de valor como LNI.</p>
+                    </div>
+                </div>
+
+                <!-- Personal Mission Statement -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Mis Valores Fundamentales</label>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-xl text-xs font-bold border border-indigo-100">Integridad Global</span>
+                            <span class="bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-xl text-xs font-bold border border-indigo-100">Adaptabilidad Cultural</span>
+                            <span class="bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-xl text-xs font-bold border border-indigo-100">Resiliencia</span>
+                            <span class="bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-xl text-xs font-bold border border-indigo-100">Innovación</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-3 leading-relaxed">
+                            Estos valores sirven como brújula ética para todas las decisiones y transacciones comerciales internacionales que decida liderar en el futuro.
+                        </p>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Visión y Propósito Personal</label>
+                        <textarea class="w-full border border-slate-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none scrollbar-thin" rows="3">Convertirme en un líder con visión global y experiencia en logística y comercio internacional, facilitando el desarrollo comercial ético y sostenible de empresas mexicanas en mercados de América del Norte y Europa.</textarea>
+                    </div>
+                </div>
+
+                <!-- FODA Interactive Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Fortalezas -->
+                    <div class="bg-white p-5 rounded-2xl border border-emerald-200 shadow-sm">
+                        <div class="flex justify-between items-center mb-3">
+                            <h4 class="font-bold text-emerald-800 text-sm uppercase flex items-center gap-2">
+                                <i class="fa-solid fa-award text-emerald-600"></i> Fortalezas (Interno)
+                            </h4>
+                            <button onclick="addFodaItem('fortalezas')" class="text-emerald-600 hover:text-emerald-700 text-xs font-bold"><i class="fa-solid fa-plus-circle"></i> Agregar</button>
+                        </div>
+                        <ul id="list-fortalezas" class="space-y-2 text-xs text-slate-600">
+                            <li class="bg-emerald-50/50 p-2 rounded-lg flex justify-between items-center border border-emerald-100">
+                                <span>Dominio avanzado del inglés corporativo (C1)</span>
+                                <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-red-500"><i class="fa-solid fa-trash"></i></button>
+                            </li>
+                            <li class="bg-emerald-50/50 p-2 rounded-lg flex justify-between items-center border border-emerald-100">
+                                <span>Habilidades sólidas para la negociación intercultural</span>
+                                <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-red-500"><i class="fa-solid fa-trash"></i></button>
+                            </li>
+                            <li class="bg-emerald-50/50 p-2 rounded-lg flex justify-between items-center border border-emerald-100">
+                                <span>Excelente capacidad de resolución de problemas bajo presión</span>
+                                <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-red-500"><i class="fa-solid fa-trash"></i></button>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Debilidades -->
+                    <div class="bg-white p-5 rounded-2xl border border-rose-200 shadow-sm">
+                        <div class="flex justify-between items-center mb-3">
+                            <h4 class="font-bold text-rose-800 text-sm uppercase flex items-center gap-2">
+                                <i class="fa-solid fa-bolt text-rose-600"></i> Debilidades (Interno)
+                            </h4>
+                            <button onclick="addFodaItem('debilidades')" class="text-rose-600 hover:text-rose-700 text-xs font-bold"><i class="fa-solid fa-plus-circle"></i> Agregar</button>
+                        </div>
+                        <ul id="list-debilidades" class="space-y-2 text-xs text-slate-600">
+                            <li class="bg-rose-50/50 p-2 rounded-lg flex justify-between items-center border border-rose-100">
+                                <span>Falta de experiencia corporativa real en aduanas/puertos</span>
+                                <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-red-500"><i class="fa-solid fa-trash"></i></button>
+                            </li>
+                            <li class="bg-rose-50/50 p-2 rounded-lg flex justify-between items-center border border-rose-100">
+                                <span>Conocimiento técnico limitado en ERPs comunes como SAP</span>
+                                <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-red-500"><i class="fa-solid fa-trash"></i></button>
+                            </li>
+                            <li class="bg-rose-50/50 p-2 rounded-lg flex justify-between items-center border border-rose-100">
+                                <span>Ansiedad leve al realizar discursos o presentaciones en grandes foros</span>
+                                <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-red-500"><i class="fa-solid fa-trash"></i></button>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Oportunidades -->
+                    <div class="bg-white p-5 rounded-2xl border border-blue-200 shadow-sm">
+                        <div class="flex justify-between items-center mb-3">
+                            <h4 class="font-bold text-blue-800 text-sm uppercase flex items-center gap-2">
+                                <i class="fa-solid fa-magnifying-glass-chart text-blue-600"></i> Oportunidades (Externo)
+                            </h4>
+                            <button onclick="addFodaItem('oportunidades')" class="text-blue-600 hover:text-blue-700 text-xs font-bold"><i class="fa-solid fa-plus-circle"></i> Agregar</button>
+                        </div>
+                        <ul id="list-oportunidades" class="space-y-2 text-xs text-slate-600">
+                            <li class="bg-blue-50/50 p-2 rounded-lg flex justify-between items-center border border-blue-100">
+                                <span>Boom del Nearshoring y reubicación de cadenas de suministro a México</span>
+                                <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-red-500"><i class="fa-solid fa-trash"></i></button>
+                            </li>
+                            <li class="bg-blue-50/50 p-2 rounded-lg flex justify-between items-center border border-blue-100">
+                                <span>Disponibilidad de becas internacionales para posgrados en Europa</span>
+                                <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-red-500"><i class="fa-solid fa-trash"></i></button>
+                            </li>
+                            <li class="bg-blue-50/50 p-2 rounded-lg flex justify-between items-center border border-blue-100">
+                                <span>Tratados comerciales de México (T-MEC, TLCUEM) que facilitan las operaciones</span>
+                                <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-red-500"><i class="fa-solid fa-trash"></i></button>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Amenazas -->
+                    <div class="bg-white p-5 rounded-2xl border border-amber-200 shadow-sm">
+                        <div class="flex justify-between items-center mb-3">
+                            <h4 class="font-bold text-amber-800 text-sm uppercase flex items-center gap-2">
+                                <i class="fa-solid fa-shield-halved text-amber-600"></i> Amenazas (Externo)
+                            </h4>
+                            <button onclick="addFodaItem('amenazas')" class="text-amber-600 hover:text-amber-700 text-xs font-bold"><i class="fa-solid fa-plus-circle"></i> Agregar</button>
+                        </div>
+                        <ul id="list-amenazas" class="space-y-2 text-xs text-slate-600">
+                            <li class="bg-amber-50/50 p-2 rounded-lg flex justify-between items-center border border-amber-100">
+                                <span>Mercado laboral altamente saturado y competido en el área de aduanas</span>
+                                <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-red-500"><i class="fa-solid fa-trash"></i></button>
+                            </li>
+                            <li class="bg-amber-50/50 p-2 rounded-lg flex justify-between items-center border border-amber-100">
+                                <span>Fluctuación y volatilidad del tipo de cambio peso-dólar</span>
+                                <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-red-500"><i class="fa-solid fa-trash"></i></button>
+                            </li>
+                            <li class="bg-amber-50/50 p-2 rounded-lg flex justify-between items-center border border-amber-100">
+                                <span>Creciente automatización algorítmica de la clasificación arancelaria básica</span>
+                                <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-red-500"><i class="fa-solid fa-trash"></i></button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab: Fase 2 Mercado LNI -->
+            <section id="content-fase2" class="tab-content hidden space-y-6">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-800">Fase 2: Análisis de la Industria y Mercado Global</h2>
+                    <p class="text-xs text-slate-500">Mapeo del mercado laboral enfocado en dos sectores claves de los Negocios Internacionales.</p>
+                </div>
+
+                <!-- Sector Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Sector 1 -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <span class="bg-indigo-100 text-indigo-800 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase">Área Clave 1</span>
+                            <h3 class="font-extrabold text-slate-800 text-lg mt-2">Logística y Gestión de Cadena de Suministro (Supply Chain)</h3>
+                            
+                            <h4 class="text-xs font-bold text-slate-400 uppercase mt-4 mb-2">Oportunidades Identificadas</h4>
+                            <p class="text-xs text-slate-600 leading-relaxed mb-4">
+                                Incremento explosivo del Nearshoring comercial en la frontera norte. Demanda crítica de coordinadores de importación/exportación con dominio de fletes multimodales y leyes aduaneras.
+                            </p>
+
+                            <h4 class="text-xs font-bold text-slate-400 uppercase mb-2">Competencias Requeridas</h4>
+                            <div class="flex flex-wrap gap-1.5 mb-4">
+                                <span class="bg-slate-100 text-slate-700 text-[10px] font-bold px-2 py-1 rounded">Regulación Aduanera</span>
+                                <span class="bg-slate-100 text-slate-700 text-[10px] font-bold px-2 py-1 rounded">Incoterms 2020</span>
+                                <span class="bg-slate-100 text-slate-700 text-[10px] font-bold px-2 py-1 rounded">Manejo de ERP (SAP)</span>
+                                <span class="bg-slate-100 text-slate-700 text-[10px] font-bold px-2 py-1 rounded">Negociación con Fletistas</span>
+                            </div>
+                        </div>
+                        <div class="pt-4 border-t border-slate-100 flex justify-between items-center text-xs">
+                            <span class="text-indigo-600 font-bold"><i class="fa-solid fa-chart-line"></i> Demanda: Muy Alta</span>
+                            <span class="text-slate-400">Promedio Salarial: Atractivo</span>
+                        </div>
+                    </div>
+
+                    <!-- Sector 2 -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase">Área Clave 2</span>
+                            <h3 class="font-extrabold text-slate-800 text-lg mt-2">Inteligencia Comercial y Expansión de Negocios Internacionales</h3>
+                            
+                            <h4 class="text-xs font-bold text-slate-400 uppercase mt-4 mb-2">Oportunidades Identificadas</h4>
+                            <p class="text-xs text-slate-600 leading-relaxed mb-4">
+                                Necesidad corporativa de expandir marcas hacia mercados sudamericanos y europeos. Búsqueda de analistas de datos comerciales que descifren tarifas y regulaciones arancelarias mediante análisis predictivo.
+                            </p>
+
+                            <h4 class="text-xs font-bold text-slate-400 uppercase mb-2">Competencias Requeridas</h4>
+                            <div class="flex flex-wrap gap-1.5 mb-4">
+                                <span class="bg-slate-100 text-slate-700 text-[10px] font-bold px-2 py-1 rounded">Data Analytics (SQL/PowerBI)</span>
+                                <span class="bg-slate-100 text-slate-700 text-[10px] font-bold px-2 py-1 rounded">Investigación de Mercados</span>
+                                <span class="bg-slate-100 text-slate-700 text-[10px] font-bold px-2 py-1 rounded">Gestión de Proyectos</span>
+                                <span class="bg-slate-100 text-slate-700 text-[10px] font-bold px-2 py-1 rounded">Estrategias de Penetración</span>
+                            </div>
+                        </div>
+                        <div class="pt-4 border-t border-slate-100 flex justify-between items-center text-xs">
+                            <span class="text-emerald-600 font-bold"><i class="fa-solid fa-chart-line"></i> Demanda: Alta</span>
+                            <span class="text-slate-400">Promedio Salarial: Alto</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Industry Requirements Self-Assessment Checklist -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <h3 class="font-bold text-slate-800 text-base mb-2">Mi Nivel de Competencias Requeridas</h3>
+                    <p class="text-xs text-slate-400 mb-4">Evalúa tu dominio actual de las habilidades críticas demandadas por el mercado global:</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
+                            <span class="text-xs font-semibold text-slate-700">Incoterms 2020 (Logística)</span>
+                            <select class="bg-white border border-slate-200 rounded-lg p-1 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                <option>Avanzado / Dominado</option>
+                                <option selected>Intermedio / En Mejora</option>
+                                <option>Básico / Por Desarrollar</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
+                            <span class="text-xs font-semibold text-slate-700">Manejo de ERP - SAP / Oracle</span>
+                            <select class="bg-white border border-slate-200 rounded-lg p-1 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                <option>Avanzado / Dominado</option>
+                                <option>Intermedio / En Mejora</option>
+                                <option selected>Básico / Por Desarrollar</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
+                            <span class="text-xs font-semibold text-slate-700">Regulación Aduanera / Ley Aduanera</span>
+                            <select class="bg-white border border-slate-200 rounded-lg p-1 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                <option>Avanzado / Dominado</option>
+                                <option selected>Intermedio / En Mejora</option>
+                                <option>Básico / Por Desarrollar</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
+                            <span class="text-xs font-semibold text-slate-700">Análisis de Datos e Inteligencia de Mercados</span>
+                            <select class="bg-white border border-slate-200 rounded-lg p-1 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                <option selected>Avanzado / Dominado</option>
+                                <option>Intermedio / En Mejora</option>
+                                <option>Básico / Por Desarrollar</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab: Fase 3 Objetivos SMART -->
+            <section id="content-fase3" class="tab-content hidden space-y-6">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-800">Fase 3: Objetivos SMART (1-3 Años)</h2>
+                    <p class="text-xs text-slate-500">Estructuración de metas específicas, medibles, alcanzables, relevantes y con un tiempo definido.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Goal 1 -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start mb-3">
+                                <span class="bg-indigo-50 text-indigo-700 text-[10px] font-extrabold px-2.5 py-1 rounded-full">Corto Plazo: 1 Año</span>
+                                <span class="text-indigo-600"><i class="fa-solid fa-graduation-cap text-lg"></i></span>
+                            </div>
+                            <h3 class="font-bold text-slate-800 text-sm">Objetivo 1: Certificación Técnica</h3>
+                            <p class="text-xs text-slate-500 mt-2 leading-relaxed">
+                                Obtener la certificación en <strong class="text-slate-700">"Logística de Transporte y Distribución Internacional"</strong> en un plazo máximo de 12 meses (finales de Q2 2027) para complementar la teoría universitaria con un aval técnico real.
+                            </p>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-slate-100">
+                            <div class="flex justify-between text-[11px] font-bold text-slate-400 mb-1">
+                                <span>Progreso</span>
+                                <span>40%</span>
+                            </div>
+                            <input type="range" min="0" max="100" value="40" class="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-indigo-600" oninput="updateGoalProgress('goal1', this.value)">
+                        </div>
+                    </div>
+
+                    <!-- Goal 2 -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start mb-3">
+                                <span class="bg-emerald-50 text-emerald-700 text-[10px] font-extrabold px-2.5 py-1 rounded-full">Corto Plazo: 2 Años</span>
+                                <span class="text-emerald-600"><i class="fa-solid fa-language text-lg"></i></span>
+                            </div>
+                            <h3 class="font-bold text-slate-800 text-sm">Objetivo 2: Idioma Estratégico</h3>
+                            <p class="text-xs text-slate-500 mt-2 leading-relaxed">
+                                Certificar un tercer idioma estratégico (<strong class="text-slate-700">Alemán o Mandarín corporativo</strong>) con un nivel intermedio avanzado (B2) en un plazo de 24 meses, facilitando oportunidades de reubicación profesional.
+                            </p>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-slate-100">
+                            <div class="flex justify-between text-[11px] font-bold text-slate-400 mb-1">
+                                <span>Progreso</span>
+                                <span>30%</span>
+                            </div>
+                            <input type="range" min="0" max="100" value="30" class="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-indigo-600" oninput="updateGoalProgress('goal2', this.value)">
+                        </div>
+                    </div>
+
+                    <!-- Goal 3 -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start mb-3">
+                                <span class="bg-amber-50 text-amber-700 text-[10px] font-extrabold px-2.5 py-1 rounded-full">Corto Plazo: 3 Años</span>
+                                <span class="text-amber-600"><i class="fa-solid fa-briefcase text-lg"></i></span>
+                            </div>
+                            <h3 class="font-bold text-slate-800 text-sm">Objetivo 3: Empleabilidad de Impacto</h3>
+                            <p class="text-xs text-slate-500 mt-2 leading-relaxed">
+                                Ingresar a una compañía multinacional de logística (como <strong class="text-slate-700">DHL, Maersk o FedEx</strong>) en un puesto junior de análisis comercial u operaciones globales, antes de cumplir 3 años de graduación.
+                            </p>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-slate-100">
+                            <div class="flex justify-between text-[11px] font-bold text-slate-400 mb-1">
+                                <span>Progreso</span>
+                                <span>65%</span>
+                            </div>
+                            <input type="range" min="0" max="100" value="65" class="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-indigo-600" oninput="updateGoalProgress('goal3', this.value)">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SMART Validation Board -->
+                <div class="bg-slate-900 text-white p-6 rounded-2xl shadow-lg">
+                    <h3 class="font-bold text-white text-base mb-4 flex items-center gap-2"><i class="fa-solid fa-clipboard-check text-indigo-400"></i> ¿Por qué son viables estos objetivos?</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 text-xs">
+                        <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700">
+                            <h4 class="font-extrabold text-indigo-400 uppercase">S - Específicos</h4>
+                            <p class="text-slate-300 mt-1">Identifican la certificación exacta, el nivel de idioma y el tipo de corporativo deseado.</p>
+                        </div>
+                        <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700">
+                            <h4 class="font-extrabold text-indigo-400 uppercase">M - Medibles</h4>
+                            <p class="text-slate-300 mt-1">Con métricas de avance y certificados oficiales de aprobación externa.</p>
+                        </div>
+                        <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700">
+                            <h4 class="font-extrabold text-indigo-400 uppercase">A - Alcanzables</h4>
+                            <p class="text-slate-300 mt-1">Estructurados en fases realistas y con recursos formativos accesibles en línea.</p>
+                        </div>
+                        <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700">
+                            <h4 class="font-extrabold text-indigo-400 uppercase">R - Relevantes</h4>
+                            <p class="text-slate-300 mt-1">Alineados de forma directa con la fuerte demanda actual de nearshoring nacional.</p>
+                        </div>
+                        <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700">
+                            <h4 class="font-extrabold text-indigo-400 uppercase">T - Temporales</h4>
+                            <p class="text-slate-300 mt-1">Establecen fechas límite claras de resolución (1, 2 y 3 años respectivamente).</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab: Fase 4 y 5 Estrategias y Plan de Accion -->
+            <section id="content-fase4-5" class="tab-content hidden space-y-6">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-800">Fases 4 y 5: Desarrollo de Estrategias y Cronograma</h2>
+                    <p class="text-xs text-slate-500">Acciones puntuales necesarias para materializar los objetivos y definir las fechas de implementación.</p>
+                </div>
+
+                <!-- Strategies Timeline Roadmap -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <h3 class="font-bold text-slate-800 text-base mb-6">Plan de Acción & Cronograma de Implementación</h3>
+                    
+                    <div class="relative border-l border-slate-200 ml-4 space-y-8">
+                        
+                        <!-- Estrategia 1 -->
+                        <div class="relative pl-8">
+                            <span class="absolute -left-[11px] top-1.5 bg-indigo-600 w-5 h-5 rounded-full border-4 border-white flex items-center justify-center"></span>
+                            <div class="flex flex-col sm:flex-row sm:justify-between items-start gap-2 mb-2">
+                                <div>
+                                    <span class="bg-indigo-100 text-indigo-800 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase">Estrategia 1 (Para Objetivo 1)</span>
+                                    <h4 class="font-bold text-slate-800 text-sm mt-1">Estandarización Académica & Certificaciones LNI</h4>
+                                </div>
+                                <span class="bg-indigo-50 text-indigo-700 text-xs font-bold px-3 py-1 rounded-lg">Fecha de Inicio: Q3 2026</span>
+                            </div>
+                            <p class="text-xs text-slate-600 leading-relaxed mb-3">
+                                Inscribirse a los cursos oficiales del estándar APICS o capacitarse de manera autónoma para presentar la certificación en Supply Chain.
+                            </p>
+                            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex items-center justify-between">
+                                <span class="text-[11px] font-bold text-slate-400 uppercase">Estatus de Implementación</span>
+                                <span class="bg-indigo-100 text-indigo-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">En Proceso</span>
+                            </div>
+                        </div>
+
+                        <!-- Estrategia 2 -->
+                        <div class="relative pl-8">
+                            <span class="absolute -left-[11px] top-1.5 bg-emerald-600 w-5 h-5 rounded-full border-4 border-white flex items-center justify-center"></span>
+                            <div class="flex flex-col sm:flex-row sm:justify-between items-start gap-2 mb-2">
+                                <div>
+                                    <span class="bg-emerald-100 text-emerald-800 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase">Estrategia 2 (Para Objetivo 2)</span>
+                                    <h4 class="font-bold text-slate-800 text-sm mt-1">Inmersión Lingüística Avanzada Intercultural</h4>
+                                </div>
+                                <span class="bg-emerald-50 text-emerald-700 text-xs font-bold px-3 py-1 rounded-lg">Fecha de Inicio: Q4 2026</span>
+                            </div>
+                            <p class="text-xs text-slate-600 leading-relaxed mb-3">
+                                Práctica y estudio de 1 hora diaria del tercer idioma. Consolidar el vocabulario técnico internacional relativo al comercio exterior y transporte.
+                            </p>
+                            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex items-center justify-between">
+                                <span class="text-[11px] font-bold text-slate-400 uppercase">Estatus de Implementación</span>
+                                <span class="bg-amber-100 text-amber-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">Pendiente por Iniciar</span>
+                            </div>
+                        </div>
+
+                        <!-- Estrategia 3 -->
+                        <div class="relative pl-8">
+                            <span class="absolute -left-[11px] top-1.5 bg-amber-600 w-5 h-5 rounded-full border-4 border-white flex items-center justify-center"></span>
+                            <div class="flex flex-col sm:flex-row sm:justify-between items-start gap-2 mb-2">
+                                <div>
+                                    <span class="bg-amber-100 text-amber-800 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase">Estrategia 3 (Para Objetivo 3)</span>
+                                    <h4 class="font-bold text-slate-800 text-sm mt-1">Optimización de Marca Personal & Networking</h4>
+                                </div>
+                                <span class="bg-amber-50 text-amber-700 text-xs font-bold px-3 py-1 rounded-lg">Fecha de Inicio: Q3 2026</span>
+                            </div>
+                            <p class="text-xs text-slate-600 leading-relaxed mb-3">
+                                Optimizar el perfil en LinkedIn utilizando palabras clave de logística y nearshoring. Asistir a foros empresariales de la Cámara de Comercio de Comercio Exterior.
+                            </p>
+                            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex items-center justify-between">
+                                <span class="text-[11px] font-bold text-slate-400 uppercase">Estatus de Implementación</span>
+                                <span class="bg-emerald-100 text-emerald-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">Completado / Activo</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Monitoring Metrics Plan -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <h3 class="font-bold text-slate-800 text-base mb-2">Método de Seguimiento del Plan</h3>
+                    <p class="text-xs text-slate-500 mb-4">Para garantizar la consistencia en el tiempo, evaluaremos el desempeño con estas métricas:</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                        <div class="p-4 bg-indigo-50/50 rounded-xl border border-indigo-100">
+                            <span class="text-indigo-600 font-bold uppercase text-[10px]">Frecuencia de Revisión</span>
+                            <h4 class="font-bold text-slate-800 mt-1">Trimestral (Cada 3 meses)</h4>
+                            <p class="text-slate-500 mt-1">Analizar los avances en las certificaciones e idiomas y actualizar el panel digital.</p>
+                        </div>
+                        <div class="p-4 bg-emerald-50/50 rounded-xl border border-emerald-100">
+                            <span class="text-emerald-600 font-bold uppercase text-[10px]">Indicador de Logro (KPI)</span>
+                            <h4 class="font-bold text-slate-800 mt-1">Constancia de Horas</h4>
+                            <p class="text-slate-500 mt-1">Lograr un mínimo de 15 horas mensuales dedicadas al aprendizaje autodidacta.</p>
+                        </div>
+                        <div class="p-4 bg-amber-50/50 rounded-xl border border-amber-100">
+                            <span class="text-amber-600 font-bold uppercase text-[10px]">Acción Correctiva</span>
+                            <h4 class="font-bold text-slate-800 mt-1">Ajuste de Calendario</h4>
+                            <p class="text-slate-500 mt-1">Si una meta se retrasa más de un mes, reestructurar la agenda y reducir proyectos alternos.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 text-center py-6 mt-12 border-t border-slate-800 text-xs no-print">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>© 2026 Plan de Trayectoria Profesional LNI. Todos los derechos reservados.</p>
+            <p class="text-[10px] text-slate-500 mt-1">Desarrollado de manera individual como evidencia electrónica del semestre académico.</p>
+        </div>
+    </footer>
+
+    <!-- Interactive Logic Scripts -->
+    <script>
+        // Tab Navigation
+        function switchTab(tabId) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+
+            // Show current tab content
+            document.getElementById(`content-${tabId}`).classList.remove('hidden');
+
+            // Reset tab button styling
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-indigo-50', 'text-indigo-600');
+                btn.classList.add('text-slate-600', 'hover:bg-slate-50');
+            });
+
+            // Set current tab active style
+            document.getElementById(`tab-${tabId}`).classList.remove('text-slate-600', 'hover:bg-slate-50');
+            document.getElementById(`tab-${tabId}`).classList.add('bg-indigo-50', 'text-indigo-600');
+        }
+
+        // Add New FODA Item Dynamically
+        function addFodaItem(fodaType) {
+            const listId = `list-${fodaType}`;
+            const inputVal = prompt(`Ingresa un elemento para tus ${fodaType.toUpperCase()}:`);
+            
+            if (inputVal && inputVal.trim() !== "") {
+                const list = document.getElementById(listId);
+                const li = document.createElement('li');
+                
+                // Set style based on color
+                let bgClass = "bg-slate-50 border-slate-100";
+                if(fodaType === "fortalezas") bgClass = "bg-emerald-50/50 border-emerald-100";
+                if(fodaType === "debilidades") bgClass = "bg-rose-50/50 border-rose-100";
+                if(fodaType === "oportunidades") bgClass = "bg-blue-50/50 border-blue-100";
+                if(fodaType === "amenazas") bgClass = "bg-amber-50/50 border-amber-100";
+
+                li.className = `${bgClass} p-2 rounded-lg flex justify-between items-center border`;
+                li.innerHTML = `
+                    <span>${inputVal}</span>
+                    <button onclick="this.parentElement.remove(); updateFodaCount();" class="text-slate-400 hover:text-red-500"><i class="fa-solid fa-trash"></i></button>
+                `;
+                list.appendChild(li);
+                updateFodaCount();
+            }
+        }
+
+        // Update FODA Total Elements Count
+        function updateFodaCount() {
+            const listTypes = ['fortalezas', 'debilidades', 'oportunidades', 'amenazas'];
+            let total = 0;
+            listTypes.forEach(type => {
+                const list = document.getElementById(`list-${type}`);
+                total += list.children.length;
+            });
+            document.getElementById('foda-count-indicator').innerText = `${total} Elementos`;
+        }
+
+        // Live updating goal slider progress bars
+        function updateGoalProgress(goalId, val) {
+            document.getElementById(`${goalId}-val`).innerText = `${val}%`;
+            document.getElementById(`${goalId}-bar`).style.width = `${val}%`;
+            recalculateCompletion();
+        }
+
+        // Mark Next Critical Action Done
+        function markNextActionDone() {
+            const btn = document.getElementById('btn-critical');
+            btn.innerHTML = `<i class="fa-solid fa-check"></i> ¡Completado!`;
+            btn.className = "bg-emerald-600 text-white font-bold px-3 py-1.5 rounded-lg transition-all cursor-default";
+            btn.disabled = true;
+            
+            // Trigger 100% on the goal progress 1
+            updateGoalProgress('goal1', 100);
+            
+            // Visual alert
+            alert("¡Felicidades! Has completado tu acción crítica. Tu plan de trayectoria profesional se ha actualizado.");
+        }
+
+        // Recalculate Overall Plan Completion Status
+        function recalculateCompletion() {
+            const g1 = parseInt(document.getElementById('goal1-val').innerText);
+            const g2 = parseInt(document.getElementById('goal2-val').innerText);
+            const g3 = parseInt(document.getElementById('goal3-val').innerText);
+            
+            const average = Math.round((g1 + g2 + g3) / 3);
+            
+            document.getElementById('sidebar-progress-bar').style.width = `${average}%`;
+            document.getElementById('sidebar-progress-text').innerText = `${average}% Completado`;
+            
+            const indicator = document.getElementById('status-indicator');
+            if (average > 80) {
+                indicator.innerText = "Altamente Consolidado";
+                indicator.className = "text-sm font-bold text-emerald-800 mt-1 bg-emerald-50 text-emerald-700 px-2 py-1 rounded inline-block";
+            } else if (average > 40) {
+                indicator.innerText = "Plan en Ejecución";
+                indicator.className = "text-sm font-bold text-slate-800 mt-1 bg-blue-50 text-blue-700 px-2 py-1 rounded inline-block";
+            } else {
+                indicator.innerText = "Inicio de Planificación";
+                indicator.className = "text-sm font-bold text-amber-800 mt-1 bg-amber-50 text-amber-700 px-2 py-1 rounded inline-block";
+            }
+        }
+
+        // Initialize counts on load
+        window.onload = function() {
+            updateFodaCount();
+            recalculateCompletion();
+        };
+    </script>
+</body>
+</html>
